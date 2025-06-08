@@ -3,6 +3,41 @@
 import { useState } from "react";
 import Image from "next/image";
 
+const riddles = [
+  {
+    question: "What has keys but can't open locks?",
+    correct: "piano",
+  },
+  {
+    question: "What runs but never walks?",
+    correct: "water",
+  },
+  {
+    question: "I speak without a mouth and hear without ears. What am I?",
+    correct: "echo",
+  },
+  {
+    question: "What has to be broken before you can use it?",
+    correct: "egg",
+  },
+  {
+    question: "What month of the year has 28 days?",
+    correct: "all",
+  },
+  {
+    question: "I’m tall when I’m young, and I’m short when I’m old. What am I?",
+    correct: "candle",
+  },
+  {
+    question: "I am an odd number. Take away a letter and I become even. What number am I?",
+    correct: "seven",
+  },
+  {
+    question: "What tastes better than it smells?",
+    correct: "tongue",
+  },
+];
+
 function Header() {
   return (
     <header className="w-full flex items-center justify-between py-6 px-4 sm:px-12 bg-white shadow-sm mb-8">
@@ -63,12 +98,124 @@ function ProductCard({ image, title, price, onAddToCart }) {
 
 export default function ProductGrid({ products }) {
   const [showPopup, setShowPopup] = useState(false);
-  const [addedProduct, setAddedProduct] = useState(null); // track which product was added
+  const [addedProduct, setAddedProduct] = useState(null);
+  const [nonChaewonCount, setNonChaewonCount] = useState(0);
+  const [riddleAnswer, setRiddleAnswer] = useState("");
+  const [riddleIndex, setRiddleIndex] = useState(null);
+
+
+  // cycle riddles
+  const currentRiddle = riddles[riddleIndex];
 
   const handleAddToCart = (product) => {
-    setAddedProduct(product.title);  // store product title for popup
-    setShowPopup(true);
-    setTimeout(() => setShowPopup(false), 1500);
+    if (product.title.toLowerCase().includes("chaewon")) {
+      setAddedProduct(product.title);
+      setShowPopup(true);
+      // auto-hide after 1.5 seconds
+      setTimeout(() => setShowPopup(false), 1500);
+      setNonChaewonCount(0); // reset just in case
+      setRiddleAnswer("");
+    } else {
+      setAddedProduct(product.title);
+      setShowPopup(true);
+      setRiddleAnswer("");
+    }
+  };
+
+  const cancelNonChaewonAdd = () => {
+    setShowPopup(false);
+    setRiddleAnswer("");
+    setNonChaewonCount(0);
+  };
+
+  const confirmNonChaewonAdd = () => {
+    if (nonChaewonCount >= 2) {
+      alert(`Added ${addedProduct} to cart!`);
+      setRiddleAnswer("");
+      setNonChaewonCount(0);
+      setShowPopup(false);
+    } else {
+      setRiddleIndex(Math.floor(Math.random() * riddles.length));
+      setNonChaewonCount((c) => c + 1);
+      renderPopupContent
+    }
+  };
+
+  const renderPopupContent = () => {
+    if (addedProduct?.toLowerCase().includes("chaewon")) {
+      return (
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded shadow-lg z-50">
+          Wonderful choice! Added {addedProduct} to cart!
+        </div>
+      );
+    } else {
+      // non-Chaewon product popups with persistent modal
+      if (nonChaewonCount === 0) {
+        return (
+          <Modal>
+            <p className="mb-6 text-xl text-black font-semibold">Are you sure?</p>
+            <Actions
+              onCancel={cancelNonChaewonAdd}
+              onYes={() => {
+                confirmNonChaewonAdd();
+              }}
+            />
+          </Modal>
+        );
+      }
+
+      if (nonChaewonCount === 1) {
+        return (
+          <Modal>
+            <p className="mb-6 text-xl text-black font-semibold">Are you sure you're sure?</p>
+            <Actions onCancel={cancelNonChaewonAdd} onYes={confirmNonChaewonAdd} />
+          </Modal>
+        );
+      }
+
+      if (nonChaewonCount >= 2) {
+        return (
+          <Modal>
+            <p className="mb-4 text-black font-semibold">If you're really sure, solve this riddle...</p>
+            <p className="mb-4 text-black text-center">{currentRiddle.question}</p>
+
+            <input
+              type="text"
+              value={riddleAnswer}
+              onChange={(e) => setRiddleAnswer(e.target.value)}
+              placeholder="Type your answer..."
+              className="px-3 py-2 border border-gray-300 rounded w-64 text-black mb-4 mx-auto block"
+            />
+
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => {
+                  if (
+                    riddleAnswer.trim().toLowerCase().includes(currentRiddle.correct.toLowerCase())
+                  ) {
+                    confirmNonChaewonAdd();
+                    setNonChaewonCount(0);
+                  } else {
+                    alert("Wrong answer! Try again or cancel.");
+                  }
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Submit
+              </button>
+              <button
+                onClick={cancelNonChaewonAdd}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </Modal>
+        );
+      }
+    }
+
+    return null;
   };
 
   return (
@@ -76,29 +223,45 @@ export default function ProductGrid({ products }) {
       <Header />
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {products.map(product => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
               image={product.image}
               title={product.title}
               price={product.price}
-              onAddToCart={() => handleAddToCart(product)} // pass product here
+              onAddToCart={() => handleAddToCart(product)}
             />
           ))}
         </div>
       </main>
-
-      {showPopup && addedProduct.toLowerCase().includes("chaewon") && (
-        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded shadow-lg z-50">
-          Wonderful choice! Added {addedProduct} to cart!
-        </div>
-      )}
-
-      {showPopup && !addedProduct.toLowerCase().includes("chaewon") && (
-        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded shadow-lg z-50">
-           I would think again...
-        </div>
-      )}
+      {showPopup && renderPopupContent()}
     </>
+  );
+}
+
+function Modal({ children }) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-8 max-w-md w-full text-center">{children}</div>
+    </div>
+  );
+}
+
+function Actions({ onCancel, onYes }) {
+  return (
+    <div className="flex justify-center gap-4">
+      <button
+        onClick={onCancel}
+        className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+      >
+        Cancel
+      </button>
+      <button
+        onClick={onYes}
+        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+      >
+        Yes
+      </button>
+    </div>
   );
 }

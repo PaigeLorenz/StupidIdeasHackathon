@@ -9,10 +9,10 @@ export default async function Page() {
     .filter(file => /\.(jpe?g|png|webp)$/i.test(file));
 
   const products = files.map((file, i) => {
-    const isCustom = file.toLowerCase().startsWith("c");
+    const isCustom = file.toLowerCase().includes("c");
     return {
       id: i + 1,
-      image: `/extracted_images/${file}`, // Served from /public
+      image: `/extracted_images/${file}`,
       title: isCustom ? "Chaewon! <3" : "Tshirt",
       price: isCustom ? "35.00" : "20.00",
     };
