@@ -4,38 +4,14 @@ import { useState } from "react";
 import Image from "next/image";
 
 const riddles = [
-  {
-    question: "What has keys but can't open locks?",
-    correct: "piano",
-  },
-  {
-    question: "What runs but never walks?",
-    correct: "water",
-  },
-  {
-    question: "I speak without a mouth and hear without ears. What am I?",
-    correct: "echo",
-  },
-  {
-    question: "What has to be broken before you can use it?",
-    correct: "egg",
-  },
-  {
-    question: "What month of the year has 28 days?",
-    correct: "all",
-  },
-  {
-    question: "I’m tall when I’m young, and I’m short when I’m old. What am I?",
-    correct: "candle",
-  },
-  {
-    question: "I am an odd number. Take away a letter and I become even. What number am I?",
-    correct: "seven",
-  },
-  {
-    question: "What tastes better than it smells?",
-    correct: "tongue",
-  },
+  { question: "What has keys but can't open locks?", correct: "piano" },
+  { question: "What runs but never walks?", correct: "water" },
+  { question: "I speak without a mouth and hear without ears. What am I?", correct: "echo" },
+  { question: "What has to be broken before you can use it?", correct: "egg" },
+  { question: "What month of the year has 28 days?", correct: "all" },
+  { question: "I’m tall when I’m young, and I’m short when I’m old. What am I?", correct: "candle" },
+  { question: "I am an odd number. Take away a letter and I become even. What number am I?", correct: "seven" },
+  { question: "What tastes better than it smells?", correct: "tongue" },
 ];
 
 function Header() {
@@ -52,7 +28,6 @@ function Header() {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
-          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -103,22 +78,18 @@ export default function ProductGrid({ products }) {
   const [riddleAnswer, setRiddleAnswer] = useState("");
   const [riddleIndex, setRiddleIndex] = useState(null);
 
-
-  // cycle riddles
-  const currentRiddle = riddles[riddleIndex];
+  const currentRiddle = riddleIndex !== null ? riddles[riddleIndex] : null;
 
   const handleAddToCart = (product) => {
+    setAddedProduct(product);
+    setShowPopup(true);
+    setRiddleAnswer("");
+
     if (product.title.toLowerCase().includes("chaewon")) {
-      setAddedProduct(product.title);
-      setShowPopup(true);
-      // auto-hide after 1.5 seconds
+      setNonChaewonCount(0);
       setTimeout(() => setShowPopup(false), 1500);
-      setNonChaewonCount(0); // reset just in case
-      setRiddleAnswer("");
     } else {
-      setAddedProduct(product.title);
-      setShowPopup(true);
-      setRiddleAnswer("");
+      setRiddleIndex(null);
     }
   };
 
@@ -126,93 +97,83 @@ export default function ProductGrid({ products }) {
     setShowPopup(false);
     setRiddleAnswer("");
     setNonChaewonCount(0);
+    setRiddleIndex(null);
   };
 
   const confirmNonChaewonAdd = () => {
-    if (nonChaewonCount >= 2) {
-      alert(`Added ${addedProduct} to cart!`);
-      setRiddleAnswer("");
-      setNonChaewonCount(0);
-      setShowPopup(false);
+    if (nonChaewonCount >= 2 && currentRiddle) {
+      if (riddleAnswer.trim().toLowerCase().includes(currentRiddle.correct.toLowerCase())) {
+        alert(`Added ${addedProduct.title} to cart!`);
+        setShowPopup(false);
+        setRiddleAnswer("");
+        setNonChaewonCount(0);
+        setRiddleIndex(null);
+      } else {
+        alert("Wrong answer! Try again or cancel.");
+      }
     } else {
-      setRiddleIndex(Math.floor(Math.random() * riddles.length));
       setNonChaewonCount((c) => c + 1);
-      renderPopupContent
+      setRiddleIndex(Math.floor(Math.random() * riddles.length));
     }
   };
 
   const renderPopupContent = () => {
-    if (addedProduct?.toLowerCase().includes("chaewon")) {
+    if (!addedProduct) return null;
+
+    if (addedProduct.title.toLowerCase().includes("chaewon")) {
       return (
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded shadow-lg z-50">
-          Wonderful choice! Added {addedProduct} to cart!
+          Wonderful choice! Added <strong>{addedProduct.title}</strong> to cart!
         </div>
       );
-    } else {
-      // non-Chaewon product popups with persistent modal
-      if (nonChaewonCount === 0) {
-        return (
-          <Modal>
-            <p className="mb-6 text-xl text-black font-semibold">Are you sure?</p>
-            <Actions
-              onCancel={cancelNonChaewonAdd}
-              onYes={() => {
-                confirmNonChaewonAdd();
-              }}
-            />
-          </Modal>
-        );
-      }
+    }
 
-      if (nonChaewonCount === 1) {
-        return (
-          <Modal>
-            <p className="mb-6 text-xl text-black font-semibold">Are you sure you're sure?</p>
-            <Actions onCancel={cancelNonChaewonAdd} onYes={confirmNonChaewonAdd} />
-          </Modal>
-        );
-      }
+    if (nonChaewonCount === 0) {
+      return (
+        <Modal>
+          <p className="mb-6 text-xl text-black font-semibold">Are you sure?</p>
+          <Actions onCancel={cancelNonChaewonAdd} onYes={confirmNonChaewonAdd} />
+        </Modal>
+      );
+    }
 
-      if (nonChaewonCount >= 2) {
-        return (
-          <Modal>
-            <p className="mb-4 text-black font-semibold">If you're really sure, solve this riddle...</p>
-            <p className="mb-4 text-black text-center">{currentRiddle.question}</p>
+    if (nonChaewonCount === 1) {
+      return (
+        <Modal>
+          <p className="mb-6 text-xl text-black font-semibold">Are you sure you're sure?</p>
+          <Actions onCancel={cancelNonChaewonAdd} onYes={confirmNonChaewonAdd} />
+        </Modal>
+      );
+    }
 
-            <input
-              type="text"
-              value={riddleAnswer}
-              onChange={(e) => setRiddleAnswer(e.target.value)}
-              placeholder="Type your answer..."
-              className="px-3 py-2 border border-gray-300 rounded w-64 text-black mb-4 mx-auto block"
-            />
-
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => {
-                  if (
-                    riddleAnswer.trim().toLowerCase().includes(currentRiddle.correct.toLowerCase())
-                  ) {
-                    confirmNonChaewonAdd();
-                    setNonChaewonCount(0);
-                  } else {
-                    alert("Wrong answer! Try again or cancel.");
-                  }
-                }}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                Submit
-              </button>
-              <button
-                onClick={cancelNonChaewonAdd}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </Modal>
-        );
-      }
+    if (nonChaewonCount >= 2 && currentRiddle) {
+      return (
+        <Modal>
+          <p className="mb-4 text-black font-semibold">If you're really sure, solve this riddle...</p>
+          <p className="mb-4 text-black text-center">{currentRiddle.question}</p>
+          <input
+            type="text"
+            value={riddleAnswer}
+            onChange={(e) => setRiddleAnswer(e.target.value)}
+            placeholder="Type your answer..."
+            className="px-3 py-2 border border-gray-300 rounded w-64 text-black mb-4 mx-auto block"
+          />
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={confirmNonChaewonAdd}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Submit
+            </button>
+            <button
+              onClick={cancelNonChaewonAdd}
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </Modal>
+      );
     }
 
     return null;
@@ -250,16 +211,10 @@ function Modal({ children }) {
 function Actions({ onCancel, onYes }) {
   return (
     <div className="flex justify-center gap-4">
-      <button
-        onClick={onCancel}
-        className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-      >
+      <button onClick={onCancel} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
         Cancel
       </button>
-      <button
-        onClick={onYes}
-        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-      >
+      <button onClick={onYes} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
         Yes
       </button>
     </div>
