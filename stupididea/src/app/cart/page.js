@@ -265,19 +265,25 @@ const CHAOS_STEPS = [
     className: "transition-all duration-300",
   }, // tiny
   {
-    style: { transform: "scale(0.5)", left: "50px", top: "0" },
+    style: { transform: "scale(0.5)", left: "0", top: "0" },
     className: "transition-all duration-300",
+    position: "absolute",
+  }, // normal
+  {
+    style: { transform: "scale(0.5)", left: "100px", top: "0" },
+    className: "transition-all duration-300",
+    position: "absolute",
   }, // move left
   {
     style: {
-      transform: "scale(0.5) translateY(-40px)",
+      transform: "scale(0.1) translateY(-40px)",
       left: "20px",
       top: "0",
     },
     className: "animate-bounce transition-all duration-300",
   }, // bounce
   {
-    style: { opacity: 0.2, left: "20px", top: "0" },
+    style: { opacity: 0.1, left: "20px", top: "0" },
     className: "transition-all duration-300",
   }, // barely visible
   {
@@ -368,7 +374,7 @@ export default function CartPage() {
   let buyNowBtnClass =
     "w-full mt-8 py-3 px-6 rounded-full bg-black text-white font-bold text-lg hover:bg-gray-800 transition-colors shadow-md";
   if (!hasChaewon && chaosActive && chaosStep > 0) {
-    const chaos = CHAOS_STEPS[chaosStep] || {};
+    const chaos = CHAOS_STEPS[chaosStep - 1] || {};
     buyNowBtnStyle = { ...chaos.style };
     buyNowBtnClass += " " + (chaos.className || "");
     if (chaosStep === CHAOS_STEPS.length - 1) {
