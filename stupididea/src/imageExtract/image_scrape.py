@@ -3,7 +3,7 @@ import re
 import requests
 from urllib.request import urlretrieve
 
-INPUT_FILE = r"C:\Users\pelor\Documents\Coding\StupidIdeasHackathon\stupididea\src\imageExtract\source_text.txt"
+INPUT_FILE = r".\source_text.txt"
 OUTPUT_DIR = "extracted_images"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
