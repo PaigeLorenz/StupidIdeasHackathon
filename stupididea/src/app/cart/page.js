@@ -357,10 +357,14 @@ export default function CartPage() {
   // Buy Now button click handler
   function handleBuyNow(e) {
     e.preventDefault();
+    // if (hasChaewon) {
+    //   setShowPopup(true);
+    //   setChaosStep(0);
+    //   setChaosActive(false);
+    //   return;
+    // }
     if (hasChaewon) {
-      setShowPopup(true);
-      setChaosStep(0);
-      setChaosActive(false);
+      window.location.href = "/chaewon";
       return;
     }
     // If not, start chaos sequence
