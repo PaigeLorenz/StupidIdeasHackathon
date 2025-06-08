@@ -1,6 +1,7 @@
 import Image from "next/image";
+import fs from "fs";
+import path from "path";
 
-// Reusable ProductCard component
 function ProductCard({ image, title, price }) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
@@ -21,53 +22,10 @@ function ProductCard({ image, title, price }) {
   );
 }
 
-// Example product data
-const products = [
-  {
-    id: 1,
-    image: "/products/shoes.jpg",
-    title: "Classic Sneakers",
-    price: "59.99",
-  },
-  {
-    id: 2,
-    image: "/products/headphones.jpg",
-    title: "Wireless Headphones",
-    price: "89.99",
-  },
-  {
-    id: 3,
-    image: "/products/backpack.jpg",
-    title: "Urban Backpack",
-    price: "39.99",
-  },
-  {
-    id: 4,
-    image: "/products/watch.jpg",
-    title: "Smart Watch",
-    price: "129.99",
-  },
-  {
-    id: 5,
-    image: "/products/sunglasses.jpg",
-    title: "Stylish Sunglasses",
-    price: "24.99",
-  },
-  {
-    id: 6,
-    image: "/products/jacket.jpg",
-    title: "Denim Jacket",
-    price: "74.99",
-  },
-];
-
-// Header component
 function Header() {
   return (
     <header className="w-full flex items-center justify-between py-6 px-4 sm:px-12 bg-white shadow-sm mb-8">
-      <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-        Shoply
-      </h1>
+      <h1 className="text-2xl font-bold tracking-tight text-gray-900">Shoply</h1>
       <button
         className="relative flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-800 transition-colors"
         aria-label="View cart"
@@ -88,7 +46,6 @@ function Header() {
           />
         </svg>
         <span className="hidden sm:inline">Cart</span>
-        {/* Cart count badge (static for now) */}
         <span className="absolute -top-1 -right-1 bg-red-500 text-xs text-white rounded-full px-1.5 py-0.5 font-bold">
           0
         </span>
@@ -97,7 +54,22 @@ function Header() {
   );
 }
 
-export default function Home() {
+export default async function Page() {
+  const imagesPath = path.join(process.cwd(), "public", "extracted_images");
+  const files = fs
+    .readdirSync(imagesPath)
+    .filter(file => /\.(jpe?g|png|webp)$/i.test(file));
+
+  const products = files.map((file, i) => {
+    const isCustom = file.toLowerCase().startsWith("c");
+    return {
+      id: i + 1,
+      image: `/extracted_images/${file}`, // Served from /public
+      title: isCustom ? file.split(".")[0] : "Tshirt",
+      price: isCustom ? "35.00" : "20.00",
+    };
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 font-[family-name:var(--font-geist-sans)]">
       <Header />
