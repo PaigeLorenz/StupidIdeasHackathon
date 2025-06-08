@@ -63,7 +63,9 @@ function CheckoutForm({ formRef }) {
       className="bg-white rounded-lg shadow-md p-6 mt-8 space-y-6 relative"
       style={{ zIndex: 1 }}
     >
-      <h2 className="text-lg font-semibold mb-4">Shipping Information</h2>
+      <h2 className="text-lg font-semibold mb-4 text-black">
+        Shipping Information
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -150,7 +152,9 @@ function CheckoutForm({ formRef }) {
           />
         </div>
       </div>
-      <h2 className="text-lg font-semibold mt-8 mb-4">Billing Information</h2>
+      <h2 className="text-lg font-semibold mt-8 mb-4 text-black">
+        Billing Information
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -243,10 +247,10 @@ function PurchasePopup({ open, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full text-center">
-        <h2 className="text-2xl font-bold mb-4">
-          Thank you for your purchase!
+        <h2 className="text-2xl font-bold mb-4 text-black">
+          You made successfully made a purchase :/
         </h2>
-        <p className="mb-6">Your order has been placed successfully.</p>
+        <p className="mb-6">Reflect on your choices.</p>
         <button
           className="px-6 py-2 rounded-full bg-black text-white font-bold hover:bg-gray-800 transition-colors"
           onClick={onClose}
@@ -265,17 +269,35 @@ const CHAOS_STEPS = [
     className: "transition-all duration-300",
   }, // tiny
   {
-    style: { transform: "scale(0.5)", left: "0", top: "0" },
+    style: {
+      position: "relative",
+      transform: "scale(0.5)",
+      left: "0",
+      top: "0",
+    },
     className: "transition-all duration-300",
-    position: "absolute",
   }, // normal
   {
-    style: { transform: "scale(0.5)", left: "100px", top: "0" },
+    style: {
+      position: "relative",
+      transform: "scale(0.5)",
+      left: "200px",
+      top: "0",
+    },
     className: "transition-all duration-300",
-    position: "absolute",
   }, // move left
   {
     style: {
+      position: "relative",
+      transform: "scale(0.5)",
+      left: "400px",
+      top: "0",
+    },
+    className: "transition-all duration-300",
+  }, // move left more
+  {
+    style: {
+      position: "static",
       transform: "scale(0.1) translateY(-40px)",
       left: "20px",
       top: "0",
@@ -283,23 +305,13 @@ const CHAOS_STEPS = [
     className: "animate-bounce transition-all duration-300",
   }, // bounce
   {
-    style: { opacity: 0.1, left: "20px", top: "0" },
+    style: { opacity: 0.03, left: "20px", top: "0" },
     className: "transition-all duration-300",
   }, // barely visible
   {
-    style: { opacity: 0, pointerEvents: "none", left: "20px", top: "0" },
+    style: { opacity: 0.03, left: "20px", top: "0" },
     className: "transition-all duration-300",
-  }, // hidden
-  {
-    style: {
-      position: "absolute",
-      left: "50%",
-      top: "10px",
-      opacity: 0,
-      pointerEvents: "none",
-    },
-    className: "",
-  }, // behind shipping info
+  }, // barely visible
 ];
 
 export default function CartPage() {
@@ -377,14 +389,6 @@ export default function CartPage() {
     const chaos = CHAOS_STEPS[chaosStep - 1] || {};
     buyNowBtnStyle = { ...chaos.style };
     buyNowBtnClass += " " + (chaos.className || "");
-    if (chaosStep === CHAOS_STEPS.length - 1) {
-      // Place absolutely over the shipping form
-      buyNowBtnStyle.position = "absolute";
-      buyNowBtnStyle.left = "50%";
-      buyNowBtnStyle.top = "120px";
-      buyNowBtnStyle.transform = "translateX(-50%)";
-      buyNowBtnStyle.zIndex = 0;
-    }
   }
 
   return (
